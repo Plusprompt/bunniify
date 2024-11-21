@@ -61,7 +61,7 @@ const BunniifyApp = () => {
         width: '0',
         videoId: playlist[currentSong].youtubeId,
         playerVars: {
-          autoplay: 0,
+          autoplay: isPlaying ? 1 : 0,
           controls: 0,
           disablekb: 1,
           fs: 0,
@@ -91,7 +91,7 @@ const BunniifyApp = () => {
         }
       });
     }
-  }, [currentSong, volume]);
+  }, [currentSong, volume, isPlaying]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -152,7 +152,7 @@ const BunniifyApp = () => {
   const handleVolumeChange = (e) => {
     const newVolume = parseInt(e.target.value);
     setVolume(newVolume);
-    if (playerRef.current) {
+    if (playerRef.current && playerRef.current.setVolume) {
       playerRef.current.setVolume(newVolume);
     }
   };
@@ -202,6 +202,18 @@ const BunniifyApp = () => {
     };
   }, [isPlaying, drawEmojiVisualizer]);
 
+  const handleSeek = (e) => {
+    const seekBar = e.currentTarget;
+    const rect = seekBar.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const seekPosition = (x / rect.width) * duration;
+    
+    if (playerRef.current) {
+      playerRef.current.seekTo(seekPosition, true);
+      setProgress(seekPosition);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <div id="youtube-player"></div>
@@ -215,15 +227,15 @@ const BunniifyApp = () => {
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-2xl">🎧</span>
-            <Volume2 className="text-pink-600" />
-            <div className="w-24 h-2 bg-pink-200 rounded-full">
+            <div className="flex items-center gap-4">
+              <Volume2 className="text-pink-600" />
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-full h-full appearance-none bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-600"
+                className="w-24 h-2 bg-pink-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-600"
               />
             </div>
           </div>
@@ -287,15 +299,20 @@ const BunniifyApp = () => {
               </button>
             </div>
 
-            <div className="w-full bg-pink-100 rounded-full h-2 mb-2">
+            <div className="w-full space-y-2">
               <div 
-                className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
-                style={{ width: `${(progress / duration) * 100}%` }}
-              ></div>
-            </div>
-            <div className="w-full flex justify-between text-sm text-gray-500">
-              <span>{formatTime(progress)}</span>
-              <span>{formatTime(duration)}</span>
+                className="w-full bg-pink-100 rounded-full h-2 cursor-pointer relative"
+                onClick={handleSeek}
+              >
+                <div 
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
+                  style={{ width: `${(progress / duration) * 100}%` }}
+                ></div>
+              </div>
+              <div className="w-full flex justify-between text-sm text-gray-500">
+                <span>{formatTime(progress)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
             </div>
           </div>
         </div>

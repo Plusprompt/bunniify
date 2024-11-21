@@ -15,7 +15,7 @@ const BunniifyApp = () => {
 
   const playlist = [
     {
-      title: "Dastamo Begir - Viguen",
+      title: "Faghat bekhatere to - Mansour",
       artist: "Viguen",
       duration: "3:21",
       liked: true,

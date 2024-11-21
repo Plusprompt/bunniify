@@ -67,10 +67,18 @@ const BunniifyApp = () => {
         events: {
           onReady: (event) => {
             event.target.setVolume(volume);
+            setDuration(event.target.getDuration());
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true);
+              progressInterval.current = setInterval(() => {
+                if (playerRef.current) {
+                  const currentTime = playerRef.current.getCurrentTime();
+                  setProgress(currentTime);
+                  setDuration(playerRef.current.getDuration());
+                }
+              }, 1000);
             } else if (event.data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false);
             } else if (event.data === window.YT.PlayerState.ENDED) {

@@ -1,0 +1,249 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share2, Shuffle, Repeat } from 'lucide-react';
+
+const BunniifyApp = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSong, setCurrentSong] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef(null);
+  const canvasRef = useRef(null);
+  const animationFrameRef = useRef(null);
+
+  // Enhanced playlist with YouTube video IDs
+  const playlist = [
+    {
+      title: "Gole Sangam",
+      artist: "Hayedeh",
+      duration: "4:35",
+      liked: true,
+      youtubeId: "example1", // Replace with actual YouTube video ID
+      thumbnail: "https://i.ytimg.com/vi/example1/hqdefault.jpg"
+    },
+    {
+      title: "Gheseye Del",
+      artist: "Googoosh",
+      duration: "5:12",
+      liked: false,
+      youtubeId: "example2",
+      thumbnail: "https://i.ytimg.com/vi/example2/hqdefault.jpg"
+    },
+    {
+      title: "Shahe Ghalbam",
+      artist: "Moein",
+      duration: "4:58",
+      liked: true,
+      youtubeId: "example3",
+      thumbnail: "https://i.ytimg.com/vi/example3/hqdefault.jpg"
+    },
+    {
+      title: "Gole Bi Goldoon",
+      artist: "Ebi",
+      duration: "4:45",
+      liked: false,
+      youtubeId: "example4",
+      thumbnail: "https://i.ytimg.com/vi/example4/hqdefault.jpg"
+    }
+  ];
+
+  // Emoji Visualizer
+  const drawEmojiVisualizer = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.fillStyle = 'rgb(253, 242, 248)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const numBunnies = 12; // Number of bunny emojis to display
+    const spacing = canvas.width / numBunnies;
+    
+    // Function to draw bouncing bunny emoji
+    const drawBunny = (x, y, size) => {
+      ctx.font = `${size}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🐰', x, y);
+    };
+
+    // Animate bunnies
+    const animate = () => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgb(253, 242, 248)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < numBunnies; i++) {
+        const x = spacing/2 + i * spacing;
+        // Create bouncing effect
+        const bounce = Math.sin(Date.now() / 500 + i) * 20;
+        const y = canvas.height/2 + bounce;
+        // Size variation based on audio
+        const size = isPlaying ? 30 + Math.sin(Date.now() / 300 + i) * 10 : 30;
+        drawBunny(x, y, size);
+      }
+    };
+
+    animate();
+  };
+
+  useEffect(() => {
+    drawEmojiVisualizer();
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isPlaying]);
+
+  // Load YouTube IFrame API
+  useEffect(() => {
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = () => {
+      // Initialize YouTube player when API is ready
+      initializeYouTubePlayer();
+    };
+  }, []);
+
+  const initializeYouTubePlayer = () => {
+    // Initialize YouTube player with current song
+    // Note: This would need to be implemented with proper YouTube API integration
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Header - Now with emoji outside gradient */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Bunniify
+            </h1>
+            <span className="text-4xl">🐰</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <span className="text-2xl">🎧</span>
+            <Volume2 className="text-pink-600" />
+            <div className="w-24 h-2 bg-pink-200 rounded-full cursor-pointer">
+              <div 
+                className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
+                style={{width: `${volume * 100}%`}}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bunny Emoji Visualizer */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">
+          <canvas 
+            ref={canvasRef} 
+            className="w-full h-48 rounded-xl"
+            width={800}
+            height={200}
+          />
+        </div>
+
+        {/* Player Controls */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center space-x-4 mb-6">
+              <img 
+                src="/api/placeholder/200/200"
+                alt="Video thumbnail" 
+                className="w-24 h-24 rounded-2xl shadow-md"
+              />
+              <div className="text-center">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                    {playlist[currentSong].title}
+                  </h2>
+                  <span className="text-2xl">🐰</span>
+                </div>
+                <p className="text-gray-600">{playlist[currentSong].artist}</p>
+              </div>
+            </div>
+            
+            {/* Player Controls */}
+            <div className="flex items-center space-x-8 mb-6">
+              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+                <Shuffle size={20} />
+              </button>
+              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+                <SkipBack size={24} />
+              </button>
+              <button 
+                className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white hover:from-pink-600 hover:to-purple-600 transition-colors shadow-lg"
+                onClick={() => setIsPlaying(!isPlaying)}
+              >
+                {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
+              </button>
+              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+                <SkipForward size={24} />
+              </button>
+              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+                <Repeat size={20} />
+              </button>
+            </div>
+
+            <div className="w-full bg-pink-100 rounded-full h-2 mb-2">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
+                   style={{width: `${(currentTime / 100) * 100}%`}}></div>
+            </div>
+            <div className="w-full flex justify-between text-sm text-gray-500">
+              <span>1:23</span>
+              <span>4:35</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Playlist */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+          <div className="flex items-center gap-2 mb-4">
+            <h3 className="text-xl font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Playlist
+            </h3>
+            <span className="text-xl">🐰🎵✨</span>
+          </div>
+          <div className="space-y-4">
+            {playlist.map((song, index) => (
+              <div 
+                key={index}
+                className={`flex items-center justify-between p-4 rounded-xl hover:bg-pink-50 cursor-pointer transition-colors
+                  ${index === currentSong ? 'bg-gradient-to-r from-pink-50 to-purple-50' : ''}`}
+                onClick={() => setCurrentSong(index)}
+              >
+                <div className="flex items-center space-x-4">
+                  <span className="w-6 text-pink-600 font-medium">{index + 1}</span>
+                  <img 
+                    src="/api/placeholder/200/200"
+                    alt={`${song.title} thumbnail`} 
+                    className="w-12 h-12 rounded-lg shadow-sm"
+                  />
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-800">{song.title}</p>
+                    {index === currentSong && <span>🐰</span>}
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button className={`text-${song.liked ? 'pink' : 'gray'}-500 hover:text-pink-600 transition-colors`}>
+                    <Heart fill={song.liked ? 'currentColor' : 'none'} size={20} />
+                  </button>
+                  <span className="text-gray-500">{song.duration}</span>
+                  <button className="text-gray-500 hover:text-pink-600 transition-colors">
+                    <Share2 size={20} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BunniifyApp;

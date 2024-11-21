@@ -6,41 +6,103 @@ const BunniifyApp = () => {
   const [currentSong, setCurrentSong] = useState(0);
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const playerRef = useRef(null);
 
   const playlist = [
+    {
+      title: "Dastamo Begir - Viguen",
+      artist: "Viguen",
+      duration: "3:21",
+      liked: true,
+      youtubeId: "BLM0zpOktnM",
+      thumbnail: "https://i.ytimg.com/vi/BLM0zpOktnM/hqdefault.jpg"
+    },
     {
       title: "Gole Sangam",
       artist: "Hayedeh",
       duration: "4:35",
-      liked: true,
-      youtubeId: "BLM0zpOktnM",
+      liked: false,
+      youtubeId: "example2",
       thumbnail: "/api/placeholder/200/200"
     },
     {
       title: "Gheseye Del",
       artist: "Googoosh",
       duration: "5:12",
-      liked: false,
-      youtubeId: "example2",
+      liked: true,
+      youtubeId: "example3",
       thumbnail: "/api/placeholder/200/200"
     },
     {
       title: "Shahe Ghalbam",
       artist: "Moein",
       duration: "4:58",
-      liked: true,
-      youtubeId: "example3",
-      thumbnail: "/api/placeholder/200/200"
-    },
-    {
-      title: "Gole Bi Goldoon",
-      artist: "Ebi",
-      duration: "4:45",
       liked: false,
       youtubeId: "example4",
       thumbnail: "/api/placeholder/200/200"
     }
   ];
+
+  const initializeYouTubePlayer = () => {
+    if (window.YT && window.YT.Player) {
+      playerRef.current = new window.YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        videoId: playlist[currentSong].youtubeId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          rel: 0
+        },
+        events: {
+          onStateChange: onPlayerStateChange
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    // Load YouTube IFrame API
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+      }
+    };
+  }, []);
+
+  const onPlayerStateChange = (event) => {
+    if (event.data === window.YT.PlayerState.ENDED) {
+      setIsPlaying(false);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (playerRef.current) {
+      if (isPlaying) {
+        playerRef.current.pauseVideo();
+      } else {
+        playerRef.current.playVideo();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleSongChange = (index) => {
+    if (playerRef.current) {
+      playerRef.current.loadVideoById(playlist[index].youtubeId);
+      setCurrentSong(index);
+      setIsPlaying(true);
+    }
+  };
 
   const drawEmojiVisualizer = useCallback(() => {
     const canvas = canvasRef.current;
@@ -83,17 +145,9 @@ const BunniifyApp = () => {
     };
   }, [isPlaying, drawEmojiVisualizer]);
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleSongChange = (index) => {
-    setCurrentSong(index);
-    setIsPlaying(true);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+      <div id="youtube-player"></div>
       <div className="max-w-4xl mx-auto p-6">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-2">

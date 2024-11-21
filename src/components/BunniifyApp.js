@@ -61,11 +61,8 @@ const BunniifyApp = () => {
         width: '0',
         videoId: playlist[currentSong].youtubeId,
         playerVars: {
-          autoplay: isPlaying ? 1 : 0,
+          autoplay: 0,
           controls: 0,
-          disablekb: 1,
-          fs: 0,
-          rel: 0
         },
         events: {
           onReady: (event) => {
@@ -73,25 +70,17 @@ const BunniifyApp = () => {
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
-              progressInterval.current = setInterval(() => {
-                const currentTime = playerRef.current.getCurrentTime();
-                const videoDuration = playerRef.current.getDuration();
-                setProgress(currentTime);
-                setDuration(videoDuration);
-              }, 1000);
-            } else {
-              if (progressInterval.current) {
-                clearInterval(progressInterval.current);
-              }
-            }
-            if (event.data === window.YT.PlayerState.ENDED) {
+              setIsPlaying(true);
+            } else if (event.data === window.YT.PlayerState.PAUSED) {
+              setIsPlaying(false);
+            } else if (event.data === window.YT.PlayerState.ENDED) {
               handleNextSong();
             }
           }
         }
       });
     }
-  }, [currentSong, volume, isPlaying]);
+  }, [currentSong]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -123,17 +112,14 @@ const BunniifyApp = () => {
       } else {
         playerRef.current.playVideo();
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
   const handleSongChange = (index) => {
     if (playerRef.current) {
-      setProgress(0);
-      setDuration(0);
-      playerRef.current.loadVideoById(playlist[index].youtubeId);
       setCurrentSong(index);
-      setIsPlaying(true);
+      playerRef.current.loadVideoById(playlist[index].youtubeId);
+      playerRef.current.playVideo();
     }
   };
 

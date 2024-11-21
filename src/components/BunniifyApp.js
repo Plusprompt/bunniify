@@ -7,6 +7,8 @@ const BunniifyApp = () => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const playerRef = useRef(null);
+  const [volume, setVolume] = useState(100);
+  const [isShuffle, setIsShuffle] = useState(false);
 
   const playlist = [
     {
@@ -57,15 +59,18 @@ const BunniifyApp = () => {
           rel: 0
         },
         events: {
+          onReady: (event) => {
+            event.target.setVolume(volume);
+          },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.ENDED) {
-              setIsPlaying(false);
+              handleNextSong();
             }
           }
         }
       });
     }
-  }, [currentSong]);
+  }, [currentSong, volume]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -99,6 +104,30 @@ const BunniifyApp = () => {
       setCurrentSong(index);
       setIsPlaying(true);
     }
+  };
+
+  const handleNextSong = () => {
+    const nextIndex = isShuffle 
+      ? Math.floor(Math.random() * playlist.length)
+      : (currentSong + 1) % playlist.length;
+    handleSongChange(nextIndex);
+  };
+
+  const handlePreviousSong = () => {
+    const prevIndex = currentSong === 0 ? playlist.length - 1 : currentSong - 1;
+    handleSongChange(prevIndex);
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseInt(e.target.value);
+    setVolume(newVolume);
+    if (playerRef.current) {
+      playerRef.current.setVolume(newVolume);
+    }
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffle(!isShuffle);
   };
 
   const drawEmojiVisualizer = useCallback(() => {
@@ -157,7 +186,14 @@ const BunniifyApp = () => {
             <span className="text-2xl">🎧</span>
             <Volume2 className="text-pink-600" />
             <div className="w-24 h-2 bg-pink-200 rounded-full">
-              <div className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full w-full"></div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="w-full h-full appearance-none bg-transparent [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-600"
+              />
             </div>
           </div>
         </div>
@@ -191,10 +227,16 @@ const BunniifyApp = () => {
             </div>
             
             <div className="flex items-center space-x-8 mb-6">
-              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+              <button 
+                className={`text-pink-600 hover:text-pink-700 transition-colors ${isShuffle ? 'text-purple-600' : ''}`}
+                onClick={toggleShuffle}
+              >
                 <Shuffle size={20} />
               </button>
-              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+              <button 
+                className="text-pink-600 hover:text-pink-700 transition-colors"
+                onClick={handlePreviousSong}
+              >
                 <SkipBack size={24} />
               </button>
               <button 
@@ -203,7 +245,10 @@ const BunniifyApp = () => {
               >
                 {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
               </button>
-              <button className="text-pink-600 hover:text-pink-700 transition-colors">
+              <button 
+                className="text-pink-600 hover:text-pink-700 transition-colors"
+                onClick={handleNextSong}
+              >
                 <SkipForward size={24} />
               </button>
               <button className="text-pink-600 hover:text-pink-700 transition-colors">

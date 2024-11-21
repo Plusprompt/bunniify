@@ -9,6 +9,9 @@ const BunniifyApp = () => {
   const playerRef = useRef(null);
   const [volume, setVolume] = useState(100);
   const [isShuffle, setIsShuffle] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const progressInterval = useRef(null);
 
   const playlist = [
     {
@@ -45,6 +48,12 @@ const BunniifyApp = () => {
     }
   ];
 
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const initializeYouTubePlayer = useCallback(() => {
     if (window.YT && window.YT.Player) {
       playerRef.current = new window.YT.Player('youtube-player', {
@@ -63,6 +72,18 @@ const BunniifyApp = () => {
             event.target.setVolume(volume);
           },
           onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              progressInterval.current = setInterval(() => {
+                const currentTime = playerRef.current.getCurrentTime();
+                const videoDuration = playerRef.current.getDuration();
+                setProgress(currentTime);
+                setDuration(videoDuration);
+              }, 1000);
+            } else {
+              if (progressInterval.current) {
+                clearInterval(progressInterval.current);
+              }
+            }
             if (event.data === window.YT.PlayerState.ENDED) {
               handleNextSong();
             }
@@ -87,6 +108,14 @@ const BunniifyApp = () => {
     };
   }, [initializeYouTubePlayer]);
 
+  useEffect(() => {
+    return () => {
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+      }
+    };
+  }, []);
+
   const handlePlayPause = () => {
     if (playerRef.current) {
       if (isPlaying) {
@@ -100,6 +129,8 @@ const BunniifyApp = () => {
 
   const handleSongChange = (index) => {
     if (playerRef.current) {
+      setProgress(0);
+      setDuration(0);
       playerRef.current.loadVideoById(playlist[index].youtubeId);
       setCurrentSong(index);
       setIsPlaying(true);
@@ -257,11 +288,14 @@ const BunniifyApp = () => {
             </div>
 
             <div className="w-full bg-pink-100 rounded-full h-2 mb-2">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full w-1/3"></div>
+              <div 
+                className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
+                style={{ width: `${(progress / duration) * 100}%` }}
+              ></div>
             </div>
             <div className="w-full flex justify-between text-sm text-gray-500">
-              <span>1:23</span>
-              <span>4:35</span>
+              <span>{formatTime(progress)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
         </div>

@@ -81,6 +81,9 @@ const BunniifyApp = () => {
               }, 1000);
             } else if (event.data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false);
+              if (progressInterval.current) {
+                clearInterval(progressInterval.current);
+              }
             } else if (event.data === window.YT.PlayerState.ENDED) {
               handleNextSong();
             }
@@ -88,7 +91,7 @@ const BunniifyApp = () => {
         }
       });
     }
-  }, [currentSong]);
+  }, [currentSong, volume]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -126,6 +129,8 @@ const BunniifyApp = () => {
   const handleSongChange = (index) => {
     if (playerRef.current) {
       setCurrentSong(index);
+      setProgress(0);
+      setDuration(0);
       playerRef.current.loadVideoById(playlist[index].youtubeId);
       playerRef.current.playVideo();
     }

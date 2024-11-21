@@ -43,7 +43,7 @@ const BunniifyApp = () => {
     }
   ];
 
-  const initializeYouTubePlayer = () => {
+  const initializeYouTubePlayer = useCallback(() => {
     if (window.YT && window.YT.Player) {
       playerRef.current = new window.YT.Player('youtube-player', {
         height: '0',
@@ -57,14 +57,17 @@ const BunniifyApp = () => {
           rel: 0
         },
         events: {
-          onStateChange: onPlayerStateChange
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.ENDED) {
+              setIsPlaying(false);
+            }
+          }
         }
       });
     }
-  };
+  }, [currentSong]);
 
   useEffect(() => {
-    // Load YouTube IFrame API
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -77,13 +80,7 @@ const BunniifyApp = () => {
         playerRef.current.destroy();
       }
     };
-  }, []);
-
-  const onPlayerStateChange = (event) => {
-    if (event.data === window.YT.PlayerState.ENDED) {
-      setIsPlaying(false);
-    }
-  };
+  }, [initializeYouTubePlayer]);
 
   const handlePlayPause = () => {
     if (playerRef.current) {

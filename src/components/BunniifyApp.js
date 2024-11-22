@@ -21,30 +21,6 @@ const BunniifyApp = () => {
       liked: true,
       youtubeId: "BLM0zpOktnM",
       thumbnail: "https://i.ytimg.com/vi/BLM0zpOktnM/hqdefault.jpg"
-    },
-    {
-      title: "Gole Sangam",
-      artist: "Hayedeh",
-      duration: "4:35",
-      liked: false,
-      youtubeId: "example2",
-      thumbnail: "/api/placeholder/200/200"
-    },
-    {
-      title: "Gheseye Del",
-      artist: "Googoosh",
-      duration: "5:12",
-      liked: true,
-      youtubeId: "example3",
-      thumbnail: "/api/placeholder/200/200"
-    },
-    {
-      title: "Shahe Ghalbam",
-      artist: "Moein",
-      duration: "4:58",
-      liked: false,
-      youtubeId: "example4",
-      thumbnail: "/api/placeholder/200/200"
     }
   ];
 
@@ -66,8 +42,10 @@ const BunniifyApp = () => {
         },
         events: {
           onReady: (event) => {
-            event.target.setVolume(volume);
-            setDuration(event.target.getDuration());
+            const player = event.target;
+            player.unMute();
+            player.setVolume(volume);
+            setDuration(player.getDuration());
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
@@ -151,8 +129,19 @@ const BunniifyApp = () => {
   const handleVolumeChange = (e) => {
     const newVolume = parseInt(e.target.value);
     setVolume(newVolume);
+    
     if (playerRef.current && playerRef.current.setVolume) {
-      playerRef.current.setVolume(newVolume);
+      try {
+        playerRef.current.setVolume(newVolume);
+        
+        if (newVolume === 0) {
+          playerRef.current.mute();
+        } else if (playerRef.current.isMuted()) {
+          playerRef.current.unMute();
+        }
+      } catch (error) {
+        console.error('Error setting volume:', error);
+      }
     }
   };
 

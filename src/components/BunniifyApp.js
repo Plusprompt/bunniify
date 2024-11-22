@@ -7,7 +7,7 @@ const BunniifyApp = () => {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const playerRef = useRef(null);
-  const [volume, setVolume] = useState(100);
+  const [volume, setVolume] = useState(50);
   const [isShuffle, setIsShuffle] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -37,7 +37,7 @@ const BunniifyApp = () => {
         width: '0',
         videoId: playlist[currentSong].youtubeId,
         playerVars: {
-          autoplay: 0,
+          autoplay: isPlaying ? 1 : 0,
           controls: 0,
         },
         events: {
@@ -45,23 +45,12 @@ const BunniifyApp = () => {
             const player = event.target;
             player.unMute();
             player.setVolume(volume);
-            setDuration(player.getDuration());
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true);
-              progressInterval.current = setInterval(() => {
-                if (playerRef.current) {
-                  const currentTime = playerRef.current.getCurrentTime();
-                  setProgress(currentTime);
-                  setDuration(playerRef.current.getDuration());
-                }
-              }, 1000);
             } else if (event.data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false);
-              if (progressInterval.current) {
-                clearInterval(progressInterval.current);
-              }
             } else if (event.data === window.YT.PlayerState.ENDED) {
               handleNextSong();
             }
@@ -69,7 +58,7 @@ const BunniifyApp = () => {
         }
       });
     }
-  }, [currentSong, volume]);
+  }, [currentSong, isPlaying, volume]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -127,21 +116,13 @@ const BunniifyApp = () => {
   };
 
   const handleVolumeChange = (e) => {
-    const newVolume = parseInt(e.target.value);
+    const newVolume = Number(e.target.value);
     setVolume(newVolume);
     
-    if (playerRef.current && playerRef.current.setVolume) {
-      try {
-        playerRef.current.setVolume(newVolume);
-        
-        if (newVolume === 0) {
-          playerRef.current.mute();
-        } else if (playerRef.current.isMuted()) {
-          playerRef.current.unMute();
-        }
-      } catch (error) {
-        console.error('Error setting volume:', error);
-      }
+    if (playerRef.current?.getPlayerState) {
+      const player = playerRef.current;
+      player.unMute();
+      player.setVolume(newVolume);
     }
   };
 
@@ -223,7 +204,7 @@ const BunniifyApp = () => {
                 max="100"
                 value={volume}
                 onChange={handleVolumeChange}
-                className="w-24 h-2 bg-pink-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-600"
+                className="w-24 h-2 bg-pink-200 rounded-full appearance-none cursor-pointer"
               />
             </div>
           </div>

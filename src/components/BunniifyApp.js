@@ -44,13 +44,29 @@ const BunniifyApp = () => {
           onReady: (event) => {
             const player = event.target;
             player.setVolume(volume);
+            setDuration(player.getDuration());
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
               setIsPlaying(true);
+              if (progressInterval.current) {
+                clearInterval(progressInterval.current);
+              }
+              progressInterval.current = setInterval(() => {
+                if (playerRef.current) {
+                  const currentTime = playerRef.current.getCurrentTime();
+                  setProgress(currentTime);
+                }
+              }, 1000);
             } else if (event.data === window.YT.PlayerState.PAUSED) {
               setIsPlaying(false);
+              if (progressInterval.current) {
+                clearInterval(progressInterval.current);
+              }
             } else if (event.data === window.YT.PlayerState.ENDED) {
+              if (progressInterval.current) {
+                clearInterval(progressInterval.current);
+              }
               handleNextSong();
             }
           }
@@ -95,11 +111,11 @@ const BunniifyApp = () => {
 
   const handleSongChange = (index) => {
     if (playerRef.current) {
-      setCurrentSong(index);
       setProgress(0);
-      setDuration(0);
+      setCurrentSong(index);
       playerRef.current.loadVideoById(playlist[index].youtubeId);
       playerRef.current.playVideo();
+      setIsPlaying(true);
     }
   };
 
@@ -266,10 +282,7 @@ const BunniifyApp = () => {
             </div>
 
             <div className="w-full space-y-2">
-              <div 
-                className="w-full bg-pink-100 rounded-full h-2 cursor-pointer relative"
-                onClick={handleSeek}
-              >
+              <div className="w-full bg-pink-100 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
                   style={{ width: `${(progress / duration) * 100}%` }}

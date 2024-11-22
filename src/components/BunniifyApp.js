@@ -37,13 +37,12 @@ const BunniifyApp = () => {
         width: '0',
         videoId: playlist[currentSong].youtubeId,
         playerVars: {
-          autoplay: isPlaying ? 1 : 0,
+          autoplay: 0,
           controls: 0,
         },
         events: {
           onReady: (event) => {
             const player = event.target;
-            player.unMute();
             player.setVolume(volume);
           },
           onStateChange: (event) => {
@@ -58,7 +57,7 @@ const BunniifyApp = () => {
         }
       });
     }
-  }, [currentSong, isPlaying, volume]);
+  }, [currentSong]);
 
   useEffect(() => {
     const tag = document.createElement('script');
@@ -84,13 +83,14 @@ const BunniifyApp = () => {
   }, []);
 
   const handlePlayPause = () => {
-    if (playerRef.current) {
-      if (isPlaying) {
-        playerRef.current.pauseVideo();
-      } else {
-        playerRef.current.playVideo();
-      }
+    if (!playerRef.current) return;
+
+    if (isPlaying) {
+      playerRef.current.pauseVideo();
+    } else {
+      playerRef.current.playVideo();
     }
+    setIsPlaying(!isPlaying);
   };
 
   const handleSongChange = (index) => {
@@ -118,11 +118,8 @@ const BunniifyApp = () => {
   const handleVolumeChange = (e) => {
     const newVolume = Number(e.target.value);
     setVolume(newVolume);
-    
-    if (playerRef.current?.getPlayerState) {
-      const player = playerRef.current;
-      player.unMute();
-      player.setVolume(newVolume);
+    if (playerRef.current) {
+      playerRef.current.setVolume(newVolume);
     }
   };
 
@@ -252,10 +249,10 @@ const BunniifyApp = () => {
                 <SkipBack size={24} />
               </button>
               <button 
-                className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white hover:from-pink-600 hover:to-purple-600 transition-colors shadow-lg"
                 onClick={handlePlayPause}
+                className="text-pink-600 hover:text-pink-700 transition-colors"
               >
-                {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
+                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </button>
               <button 
                 className="text-pink-600 hover:text-pink-700 transition-colors"

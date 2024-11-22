@@ -223,21 +223,15 @@ const BunniifyApp = () => {
         <div className="relative w-full overflow-hidden bg-white rounded-xl shadow-lg p-4">
           <div className="relative w-full h-[200px] flex items-center justify-center">
             <div className="relative w-[90%] md:w-full max-w-[300px] h-full">
-              <img
-                src={bunnyEarLeft}
-                alt="Left ear"
-                className="absolute left-[10%] md:left-0 top-0 w-[35%] md:w-[40%] h-auto object-contain transform-origin-bottom-right animate-ear-left"
-              />
-              <img
-                src={bunnyHead}
-                alt="Bunny head"
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] md:w-[60%] h-auto object-contain"
-              />
-              <img
-                src={bunnyEarRight}
-                alt="Right ear"
-                className="absolute right-[10%] md:right-0 top-0 w-[35%] md:w-[40%] h-auto object-contain transform-origin-bottom-left animate-ear-right"
-              />
+              <span className="absolute left-[10%] md:left-0 top-0 text-6xl md:text-7xl transform-origin-bottom-right animate-ear-left">
+                👂
+              </span>
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl md:text-8xl">
+                🐰
+              </span>
+              <span className="absolute right-[10%] md:right-0 top-0 text-6xl md:text-7xl transform-origin-bottom-left animate-ear-right">
+                👂
+              </span>
             </div>
           </div>
 

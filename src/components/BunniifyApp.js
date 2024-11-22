@@ -218,95 +218,39 @@ const BunniifyApp = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
-      <div id="youtube-player"></div>
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              Bunniify
-            </h1>
-            <span className="text-4xl">🐰</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-2xl">🎧</span>
-            <div className="flex items-center gap-4">
-              <Volume2 className="text-pink-600" />
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={volume}
-                onChange={handleVolumeChange}
-                className="w-24 h-2 bg-pink-200 rounded-full appearance-none cursor-pointer"
+    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white px-4 md:px-8">
+      <div className="max-w-3xl mx-auto pt-8 pb-16">
+        <div className="relative w-full overflow-hidden bg-white rounded-xl shadow-lg p-4">
+          <div className="relative w-full h-[200px] flex items-center justify-center">
+            <div className="relative w-[90%] md:w-full max-w-[300px] h-full">
+              <img
+                src={bunnyEarLeft}
+                alt="Left ear"
+                className="absolute left-[10%] md:left-0 top-0 w-[35%] md:w-[40%] h-auto object-contain transform-origin-bottom-right animate-ear-left"
+              />
+              <img
+                src={bunnyHead}
+                alt="Bunny head"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] md:w-[60%] h-auto object-contain"
+              />
+              <img
+                src={bunnyEarRight}
+                alt="Right ear"
+                className="absolute right-[10%] md:right-0 top-0 w-[35%] md:w-[40%] h-auto object-contain transform-origin-bottom-left animate-ear-right"
               />
             </div>
           </div>
-        </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">
-          <div className="w-full px-5 md:px-0">
+          <div className="w-full px-2 md:px-0">
             <canvas 
               ref={canvasRef}
               className="rounded-xl mx-auto"
             />
           </div>
-        </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">
-          <div className="flex flex-col items-center">
-            <div className="flex items-center space-x-4 mb-6">
-              <img 
-                src={playlist[currentSong].thumbnail}
-                alt="Video thumbnail" 
-                className="w-24 h-24 rounded-2xl shadow-md"
-              />
-              <div className="text-center">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                    {playlist[currentSong].title}
-                  </h2>
-                  <span className="text-2xl">🐰</span>
-                </div>
-                <p className="text-gray-600">{playlist[currentSong].artist}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-8 mb-6">
-              <button 
-                className={`text-pink-600 hover:text-pink-700 transition-colors ${isShuffle ? 'text-purple-600' : ''}`}
-                onClick={toggleShuffle}
-              >
-                <Shuffle size={20} />
-              </button>
-              <button 
-                className="text-pink-600 hover:text-pink-700 transition-colors"
-                onClick={handlePreviousSong}
-              >
-                <SkipBack size={24} />
-              </button>
-              <button 
-                onClick={handlePlayPause}
-                className="text-pink-600 hover:text-pink-700 transition-colors"
-              >
-                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-              </button>
-              <button 
-                className="text-pink-600 hover:text-pink-700 transition-colors"
-                onClick={handleNextSong}
-              >
-                <SkipForward size={24} />
-              </button>
-              <button className="text-pink-600 hover:text-pink-700 transition-colors">
-                <Repeat size={20} />
-              </button>
-            </div>
-
+          <div className="px-2 md:px-4 space-y-4">
             <div className="w-full space-y-2">
-              <div 
-                className="w-full bg-pink-100 rounded-full h-2 cursor-pointer"
-                onClick={handleSeek}
-              >
+              <div className="w-full bg-pink-100 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
                   style={{ width: `${(progress / duration) * 100}%` }}
@@ -317,47 +261,38 @@ const BunniifyApp = () => {
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
-          <div className="flex items-center gap-2 mb-4">
-            <h3 className="text-xl font-semibold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              Playlist
-            </h3>
-            <span className="text-xl">🐰🎵✨</span>
-          </div>
-          <div className="space-y-4">
-            {playlist.map((song, index) => (
-              <div 
-                key={index}
-                className={`flex items-center justify-between p-4 rounded-xl hover:bg-pink-50 cursor-pointer transition-colors
-                  ${index === currentSong ? 'bg-gradient-to-r from-pink-50 to-purple-50' : ''}`}
-                onClick={() => handleSongChange(index)}
-              >
-                <div className="flex items-center space-x-4">
-                  <span className="w-6 text-pink-600 font-medium">{index + 1}</span>
-                  <img 
-                    src={song.thumbnail}
-                    alt={`${song.title} thumbnail`} 
-                    className="w-12 h-12 rounded-lg shadow-sm"
-                  />
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-800">{song.title}</p>
-                    {index === currentSong && <span>🐰</span>}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <button className={`text-${song.liked ? 'pink' : 'gray'}-500 hover:text-pink-600 transition-colors`}>
-                    <Heart fill={song.liked ? 'currentColor' : 'none'} size={20} />
-                  </button>
-                  <span className="text-gray-500">{song.duration}</span>
-                  <button className="text-gray-500 hover:text-pink-600 transition-colors">
-                    <Share2 size={20} />
-                  </button>
-                </div>
+            <div className="flex items-center justify-between gap-2 md:gap-4">
+              <div className="flex items-center gap-2 md:gap-4">
+                <button className="text-pink-600 hover:text-pink-700 p-1">
+                  <Shuffle size={18} />
+                </button>
+                <button className="text-pink-600 hover:text-pink-700 p-1">
+                  <SkipBack size={22} />
+                </button>
+                <button className="text-pink-600 hover:text-pink-700 p-1">
+                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                </button>
+                <button className="text-pink-600 hover:text-pink-700 p-1">
+                  <SkipForward size={22} />
+                </button>
+                <button className="text-pink-600 hover:text-pink-700 p-1">
+                  <Repeat size={18} />
+                </button>
               </div>
-            ))}
+
+              <div className="flex items-center gap-2">
+                <Volume2 className="text-pink-600 w-4 h-4 md:w-5 md:h-5" />
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="w-16 md:w-24 h-2 bg-pink-200 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-pink-600"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

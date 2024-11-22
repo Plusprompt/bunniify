@@ -200,20 +200,20 @@ const BunniifyApp = () => {
   useEffect(() => {
     const handleResize = () => {
       if (canvasRef.current) {
-        const container = canvasRef.current.parentElement;
-        const width = container.clientWidth;
-        canvasRef.current.width = width;
-        canvasRef.current.height = Math.min(200, width * 0.25); // Maintain aspect ratio
+        if (window.innerWidth > 768) {
+          canvasRef.current.width = 800;
+          canvasRef.current.height = 200;
+        } 
+        else {
+          canvasRef.current.width = window.innerWidth - 40;
+          canvasRef.current.height = 200;
+        }
       }
     };
 
-    // Initial resize
     handleResize();
 
-    // Add resize listener
     window.addEventListener('resize', handleResize);
-
-    // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -245,10 +245,12 @@ const BunniifyApp = () => {
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">
-          <canvas 
-            ref={canvasRef} 
-            className="w-full h-48 rounded-xl"
-          />
+          <div className="w-full px-5 md:px-0">
+            <canvas 
+              ref={canvasRef}
+              className="rounded-xl mx-auto"
+            />
+          </div>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-8">

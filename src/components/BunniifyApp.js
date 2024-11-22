@@ -197,6 +197,26 @@ const BunniifyApp = () => {
     setProgress(seekTime);
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (canvasRef.current) {
+        const container = canvasRef.current.parentElement;
+        const width = container.clientWidth;
+        canvasRef.current.width = width;
+        canvasRef.current.height = Math.min(200, width * 0.25); // Maintain aspect ratio
+      }
+    };
+
+    // Initial resize
+    handleResize();
+
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
       <div id="youtube-player"></div>
@@ -228,8 +248,6 @@ const BunniifyApp = () => {
           <canvas 
             ref={canvasRef} 
             className="w-full h-48 rounded-xl"
-            width={800}
-            height={200}
           />
         </div>
 

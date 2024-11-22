@@ -185,15 +185,16 @@ const BunniifyApp = () => {
   }, [isPlaying, drawEmojiVisualizer]);
 
   const handleSeek = (e) => {
-    const seekBar = e.currentTarget;
-    const rect = seekBar.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const seekPosition = (x / rect.width) * duration;
+    if (!playerRef.current) return;
     
-    if (playerRef.current) {
-      playerRef.current.seekTo(seekPosition, true);
-      setProgress(seekPosition);
-    }
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickPosition = e.clientX - rect.left;
+    const percentageClicked = clickPosition / rect.width;
+    const seekTime = duration * percentageClicked;
+    
+    playerRef.current.seekTo(seekTime, true);
+    setProgress(seekTime);
   };
 
   return (
@@ -282,7 +283,10 @@ const BunniifyApp = () => {
             </div>
 
             <div className="w-full space-y-2">
-              <div className="w-full bg-pink-100 rounded-full h-2">
+              <div 
+                className="w-full bg-pink-100 rounded-full h-2 cursor-pointer"
+                onClick={handleSeek}
+              >
                 <div 
                   className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
                   style={{ width: `${(progress / duration) * 100}%` }}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share2, Shuffle, Repeat } from 'lucide-react';
+import { Play, Pause, SkipForward, SkipBack, Volume2, Repeat, Shuffle } from 'react-feather';
 
 const BunniifyApp = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -244,7 +244,10 @@ const BunniifyApp = () => {
 
           <div className="px-2 md:px-4 space-y-4">
             <div className="w-full space-y-2">
-              <div className="w-full bg-pink-100 rounded-full h-2">
+              <div 
+                className="w-full bg-pink-100 rounded-full h-2 cursor-pointer"
+                onClick={handleSeek}
+              >
                 <div 
                   className="bg-gradient-to-r from-pink-500 to-purple-500 h-2 rounded-full" 
                   style={{ width: `${(progress / duration) * 100}%` }}
@@ -258,16 +261,28 @@ const BunniifyApp = () => {
 
             <div className="flex items-center justify-between gap-2 md:gap-4">
               <div className="flex items-center gap-2 md:gap-4">
-                <button className="text-pink-600 hover:text-pink-700 p-1">
+                <button 
+                  onClick={toggleShuffle}
+                  className="text-pink-600 hover:text-pink-700 p-1"
+                >
                   <Shuffle size={18} />
                 </button>
-                <button className="text-pink-600 hover:text-pink-700 p-1">
+                <button 
+                  onClick={handlePreviousSong}
+                  className="text-pink-600 hover:text-pink-700 p-1"
+                >
                   <SkipBack size={22} />
                 </button>
-                <button className="text-pink-600 hover:text-pink-700 p-1">
+                <button 
+                  onClick={handlePlayPause}
+                  className="text-pink-600 hover:text-pink-700 p-1"
+                >
                   {isPlaying ? <Pause size={24} /> : <Play size={24} />}
                 </button>
-                <button className="text-pink-600 hover:text-pink-700 p-1">
+                <button 
+                  onClick={handleNextSong}
+                  className="text-pink-600 hover:text-pink-700 p-1"
+                >
                   <SkipForward size={22} />
                 </button>
                 <button className="text-pink-600 hover:text-pink-700 p-1">
